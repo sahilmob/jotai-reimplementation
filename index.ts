@@ -6,10 +6,37 @@ interface Atom<AtomType> {
   subscribe: (cb: (newValue: AtomType) => void) => () => void;
 }
 
-export function atom<AtomType>(initialValue: AtomType): Atom<AtomType> {
-  let value = initialValue;
+type AtomGetter<AtomType> = (get: <T>(a: Atom<T>) => T) => AtomType;
+
+export function atom<AtomType>(
+  initialValue: AtomType | AtomGetter<AtomType>
+): Atom<AtomType> {
+  let value =
+    typeof initialValue === "function" ? (null as AtomType) : initialValue;
 
   const subscribers = new Set<(newValue: AtomType) => void>();
+
+  function get<T>(atom: Atom<T>) {
+    let currentValue = atom.get();
+
+    atom.subscribe((newValue) => {
+      if (newValue === currentValue) return;
+      currentValue = newValue;
+      computeValue();
+      subscribers.forEach((cb) => cb(value));
+    });
+
+    return currentValue;
+  }
+
+  function computeValue() {
+    value =
+      typeof initialValue === "function"
+        ? (initialValue as AtomGetter<AtomType>)(get)
+        : value;
+  }
+
+  computeValue();
 
   return {
     get: () => value,
