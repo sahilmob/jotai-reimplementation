@@ -30,10 +30,21 @@ export function atom<AtomType>(
   }
 
   function computeValue() {
-    value =
+    const newValue =
       typeof initialValue === "function"
         ? (initialValue as AtomGetter<AtomType>)(get)
         : value;
+
+    if (newValue && typeof (newValue as any).then === "function") {
+      value = null as AtomType;
+
+      (newValue as any as Promise<AtomType>).then((v) => {
+        value = v;
+        subscribers.forEach((cb) => cb(value));
+      });
+    } else {
+      value = newValue;
+    }
   }
 
   computeValue();
