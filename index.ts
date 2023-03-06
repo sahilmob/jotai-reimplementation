@@ -1,8 +1,12 @@
-export function atom<AtomType>(initialValue: AtomType): {
+import { useSyncExternalStore } from "react";
+
+interface Atom<AtomType> {
   get: () => AtomType;
   set: (newValue: AtomType) => void;
   subscribe: (cb: (newValue: AtomType) => void) => () => void;
-} {
+}
+
+export function atom<AtomType>(initialValue: AtomType): Atom<AtomType> {
   let value = initialValue;
 
   const subscribers = new Set<(newValue: AtomType) => void>();
@@ -21,4 +25,6 @@ export function atom<AtomType>(initialValue: AtomType): {
   };
 }
 
-export function useAtom() {}
+export function useAtom<AtomType>(atom: Atom<AtomType>) {
+  return [useSyncExternalStore(atom.subscribe, atom.get), atom.set];
+}

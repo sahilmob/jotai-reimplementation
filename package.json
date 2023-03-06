@@ -1,0 +1,15 @@
+{
+  "name": "my-jotai",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Sahil H. Mobaidin",
+  "license": "ISC",
+  "dependencies": {
+    "react": "^18.2.0"
+  }
+}
